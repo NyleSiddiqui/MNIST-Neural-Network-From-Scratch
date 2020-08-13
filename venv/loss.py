@@ -36,8 +36,8 @@ class Loss_CategoricalCrossentropy(Loss):
 
         # Mask values - only for one-hot encoded labels
         if len(y_true.shape) == 2:
-            # negative_log_likelihoods *= y_true
-            negative_log_likelihoods = np.dot(negative_log_likelihoods, y_true.T)
+            negative_log_likelihoods *= y_true.argmax()
+            # negative_log_likelihoods = np.dot(negative_log_likelihoods, y_true.T)
 
         # Overall loss
         data_loss = np.sum(negative_log_likelihoods) / samples

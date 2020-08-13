@@ -1,4 +1,5 @@
 import numpy as np
+np.seterr(all='raise')
 
 class Softmax:
     # Forward pass
@@ -22,16 +23,22 @@ class Sigmoid:
 
     def forward(self, inputs):
         self.inputs = inputs
-        self.output = 1.0 / (1.0 + np.exp(-inputs))
+        self.output = Sigmoid.sigmoid(inputs)
 
     def backward(self, dvalues):
         dvalues = dvalues.copy()
-        dvalues = sigmoid(dvalues) * (1 - sigmoid(dvalues))
+        dvalues = Sigmoid.sigmoid(dvalues) * (1 - Sigmoid.sigmoid(dvalues))
         self.dvalues = dvalues
         
         
-    def sigmoid(self, z):
-        return 1.0 / (1.0 + np.exp(-z))
+    def sigmoid(z):
+        try:
+            a = np.float64(np.exp(-z))
+            return 1.0 / (1.0 + a)
+        except FloatingPointError:
+            return 1
+
+
 
 class ReLU:
     # Forward pass

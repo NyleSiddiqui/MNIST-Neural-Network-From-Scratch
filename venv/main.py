@@ -1,31 +1,28 @@
-
 import random
 import sys
 sys.path.insert(1, 'C:/Users/nyles/PycharmProjects/MNIST-FeedForwardNerualNetwork')
 import numpy as np
 import mnist_loader
 from optimizers import SGD, Adagrad, RMSprop, Adam
-from activations import ReLU, Softmax
-from network import Layer_Dense
+from activations import ReLU, Softmax, Sigmoid
+from network import Layer_Dense, Layer_Dropout
 from loss import Loss_CategoricalCrossentropy, Loss
-
-
 
 
 def main():
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     layer1 = Layer_Dense(784, 30, weight_regularizer_l2=1e-5, bias_regularizer_l2=1e-5)
     layer2 = Layer_Dense(30, 10)
-    activation1 = ReLU()
+    dropout1 = Layer_Dropout(0.1)
+    activation1 = Sigmoid()
     activation2 = Softmax()
     loss_function = Loss_CategoricalCrossentropy()
-    optimizer = SGD(.001)
-    train_network(layer1, layer2, activation1, activation2, loss_function, optimizer, 200, training_data, 1000)
-    test_network(layer1, layer2, activation1, activation2, loss_function, optimizer, 200, test_data, len(test_data))
+    optimizer = SGD()
+    train_network(layer1, layer2, activation1, activation2, dropout1, loss_function, optimizer, 200, training_data, 1000)
+    #test_network(layer1, layer2, activation1, activation2, loss_function, optimizer, 200, test_data, len(test_data))
 
 
-def train_network(layer1, layer2, activation1, activation2, loss, optimizer, epoch, training_data, stop):
-    total = 0
+def train_network(layer1, layer2, activation1, activation2, dropout, loss, optimizer, epoch, training_data, stop):
     true = 0
     for epoch in range(epoch):
         random.shuffle(training_data)
@@ -38,10 +35,10 @@ def train_network(layer1, layer2, activation1, activation2, loss, optimizer, epo
             regularization_loss = loss.regularization_loss(layer1) + loss.regularization_loss(layer2)
             total_loss = data_loss + regularization_loss
             predictions = np.argmax(activation2.output, axis=1)
-            if predictions == y.argmax():
+            if predictions == y.argmax(axis=0):
                 true += 1
-            total += 1
             accuracy = "{0} / {1}".format(true, stop)
+
             # backward pass
             loss.backward(activation2.output, y)
             activation2.backward(loss.dvalues)
@@ -52,14 +49,15 @@ def train_network(layer1, layer2, activation1, activation2, loss, optimizer, epo
             optimizer.update_params(layer1)
             optimizer.update_params(layer2)
             optimizer.post_update_params()
+        true = 0
 
         if not epoch % 10:
             print('epoch:', epoch, 'acc:', accuracy, 'loss:',
                   f'{total_loss:.3f}', '(data_loss:', f'{data_loss:.3f}', 'reg_loss:',
                   f'{regularization_loss:.3f})', 'lr:',
                   optimizer.current_learning_rate)
-        true = 0
     print("Training complete. Now testing network")
+
 
 def test_network(layer1, layer2, activation1, activation2, loss, optimizer, epoch, test_data, stop):
     total = 0
@@ -97,8 +95,11 @@ def test_network(layer1, layer2, activation1, activation2, loss, optimizer, epoc
                   optimizer.current_learning_rate)
         true = 0
 
-
-
+def mini_batch(data, mini_batch_size):
+    mini_batches = [
+        data[k:k+mini_batch_size]
+        for k in range(0, len(data), mini_batch_size)]
+    return mini_batches
 
 
 if __name__ == "__main__":

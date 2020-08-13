@@ -45,3 +45,13 @@ class Layer_Dense:
             self.dbiases += 2 * self.bias_regularizer_l2 * self.biases
         # Gradient on values
         self.dvalues = np.dot(dvalues, self.weights.T)
+
+class Layer_Dropout:
+    def __init__(self, rate):
+        self.rate = 1-rate # Usually rate is the percentage, q, of neruons you want to disable, but for NumPy's binomial distribution, we need p; the percentage of neruons you want to stay active
+    def forward(self, values):
+        self.input = values
+        self.binary_mask = np.random.binomial(1, self.rate, size=values.shape) / self.rate
+        self.output = values * self.binary_mask
+    def backward(self, dvalues):
+        self.dvalues = dvalues * self.binary_mask
