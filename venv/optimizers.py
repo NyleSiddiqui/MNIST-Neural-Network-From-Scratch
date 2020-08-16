@@ -12,7 +12,10 @@ class SGD:
 
     # Update parameters
     def update_params(self, layer):
-        weight_updates = -self.current_learning_rate * layer.dweights
+        try:
+            weight_updates = -self.current_learning_rate * layer.dweights
+        except FloatingPointError:
+            weight_updates = -self.current_learning_rate
         bias_updates = -self.current_learning_rate * layer.dbiases
         layer.weights += weight_updates
         layer.biases += bias_updates
@@ -147,3 +150,7 @@ class Adagrad:
     # Call once after any parameter updates
     def post_update_params(self):
         self.iterations += 1
+
+
+
+#TODO: AWS AdaTune?

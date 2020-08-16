@@ -1,6 +1,5 @@
 import random
 import sys
-sys.path.insert(1, 'C:/Users/nyles/PycharmProjects/MNIST-FeedForwardNerualNetwork')
 import numpy as np
 import mnist_loader
 from optimizers import SGD, Adagrad, RMSprop, Adam
@@ -11,7 +10,7 @@ from loss import Loss_CategoricalCrossentropy, Loss
 
 def main():
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    layer1 = Layer_Dense(784, 30, weight_regularizer_l2=1e-5, bias_regularizer_l2=1e-5)
+    layer1 = Layer_Dense(784, 30) #weight_regularizer_l2=1e-5, bias_regularizer_l2=1e-5)
     layer2 = Layer_Dense(30, 10)
     dropout1 = Layer_Dropout(0.1)
     activation1 = Sigmoid()
@@ -30,6 +29,7 @@ def train_network(layer1, layer2, activation1, activation2, dropout, loss, optim
             layer1.forward(X)
             activation1.forward(layer1.output)
             layer2.forward(activation1.output)
+            # print(activation1.output)
             activation2.forward(layer2.output)
             data_loss = loss.forward(activation2.output, y)
             regularization_loss = loss.regularization_loss(layer1) + loss.regularization_loss(layer2)

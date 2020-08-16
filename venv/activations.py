@@ -1,5 +1,5 @@
 import numpy as np
-np.seterr(all='raise')
+# np.seterr(all='raise')
 
 class Softmax:
     # Forward pass
@@ -23,22 +23,12 @@ class Sigmoid:
 
     def forward(self, inputs):
         self.inputs = inputs
-        self.output = Sigmoid.sigmoid(inputs)
+        self.output = sigmoid(inputs)
 
     def backward(self, dvalues):
         dvalues = dvalues.copy()
-        dvalues = Sigmoid.sigmoid(dvalues) * (1 - Sigmoid.sigmoid(dvalues))
+        dvalues = sigmoid_prime(dvalues)
         self.dvalues = dvalues
-        
-        
-    def sigmoid(z):
-        try:
-            a = np.float64(np.exp(-z))
-            return 1.0 / (1.0 + a)
-        except FloatingPointError:
-            return 1
-
-
 
 class ReLU:
     # Forward pass
@@ -53,3 +43,24 @@ class ReLU:
         dvalues = dvalues.copy()  # Since we need to modify original variable, let;s make a copy of values first
         dvalues[self.inputs <= 0] = 0  # Zero gradient where input values were negative
         self.dvalues = dvalues
+
+# def sigmoid(z):
+#     return 1.0/(1.0+np.exp(-z))
+
+def sigmoid(x):
+    "Numerically stable sigmoid function."
+    for array in x:
+        for element in array:
+            if element >= 0:
+                z = np.exp(-element)
+                element = z
+            else:
+                # if x is less than zero then z will be small, denom can't be
+                # zero because it's 1+z.
+                z = np.exp(element)
+                element = z
+    return x
+
+
+def sigmoid_prime(z):
+    return sigmoid(z) * (1-sigmoid(z))
