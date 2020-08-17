@@ -1,5 +1,5 @@
 class SGD:
-    def __init__(self, learning_rate=.01, decay=0):
+    def __init__(self, learning_rate=.001, decay=0):
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
@@ -16,7 +16,10 @@ class SGD:
             weight_updates = -self.current_learning_rate * layer.dweights
         except FloatingPointError:
             weight_updates = -self.current_learning_rate
-        bias_updates = -self.current_learning_rate * layer.dbiases
+        try:
+            bias_updates = -self.current_learning_rate * layer.dbiases
+        except FloatingPointError:
+            bias_updates = -self.current_learning_rate
         layer.weights += weight_updates
         layer.biases += bias_updates
 

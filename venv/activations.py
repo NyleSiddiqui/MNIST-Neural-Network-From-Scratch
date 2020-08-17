@@ -1,5 +1,7 @@
 import numpy as np
-# np.seterr(all='raise')
+import scipy as sci
+from scipy.special import logsumexp
+np.seterr(all='raise')
 
 class Softmax:
     # Forward pass
@@ -12,7 +14,7 @@ class Softmax:
                                             keepdims=True))
         # normalize them for each sample
         probabilities = exp_values / np.sum(exp_values, axis=1,
-                                            keepdims=True)
+                                             keepdims=True)
         self.output = probabilities
 
     # Backward pass
@@ -44,23 +46,31 @@ class ReLU:
         dvalues[self.inputs <= 0] = 0  # Zero gradient where input values were negative
         self.dvalues = dvalues
 
-# def sigmoid(z):
-#     return 1.0/(1.0+np.exp(-z))
 
+
+
+
+# helper functions
 def sigmoid(x):
+    print("pre: {0}".format(x))
     "Numerically stable sigmoid function."
     for array in x:
         for element in array:
             if element >= 0:
                 z = np.exp(-element)
-                element = z
+                x[np.where(x == element)] =  1 / (1 + z)
             else:
                 # if x is less than zero then z will be small, denom can't be
                 # zero because it's 1+z.
-                z = np.exp(element)
-                element = z
+                try:
+                    z = np.exp(element)
+                except FloatingPointError:
+                    z = 0
+                x[np.where(x == element)] = z / (1 + z)
+    print("post: {0}".format(x))
     return x
 
 
 def sigmoid_prime(z):
     return sigmoid(z) * (1-sigmoid(z))
+
