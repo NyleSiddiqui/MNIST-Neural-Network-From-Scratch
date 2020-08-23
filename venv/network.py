@@ -3,7 +3,7 @@ class Layer_Dense:
     # Layer initialization
     def __init__(self, inputs, neurons, weight_regularizer_l1=0, weight_regularizer_l2=0, bias_regularizer_l1=0,
                  bias_regularizer_l2=0):
-        # Initialize weights and biases
+        # Initialize random weights and biases (Gaussian Distribution)
         self.weights = 0.01 * np.random.randn(inputs, neurons)
         self.biases = np.zeros((1, neurons))
         # Set regularization strength
@@ -16,7 +16,7 @@ class Layer_Dense:
     def forward(self, inputs):
         # Remember input values
         self.inputs = inputs
-        # Calculate output values from input ones, weights and biases
+        # Calculate output values from input
         self.output = np.dot(inputs, self.weights) + self.biases
 
     # Backward pass
@@ -24,6 +24,7 @@ class Layer_Dense:
         # Gradients on parameters
         self.dweights = np.dot(self.inputs.T, dvalues)
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
+
         # Gradients on regularization
         # L1 on weights
         if self.weight_regularizer_l1 > 0:
@@ -47,6 +48,7 @@ class Layer_Dense:
         self.dvalues = np.dot(dvalues, self.weights.T)
 
 class Layer_Dropout:
+    # Optional class to implement to minimize overfitting
     def __init__(self, rate):
         self.rate = 1-rate # Usually rate is the percentage, q, of neruons you want to disable, but for NumPy's binomial distribution, we need p; the percentage of neruons you want to stay active
     def forward(self, values):

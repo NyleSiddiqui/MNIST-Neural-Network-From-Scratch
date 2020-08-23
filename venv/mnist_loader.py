@@ -1,5 +1,7 @@
 """
 mnist_loader
+Taken from Micahel Nielsen's repositroy for a similar ML task. https://github.com/mnielsen/neural-networks-and-deep-learning
+Only used for formatting data
 ~~~~~~~~~~~~
 
 A library to load the MNIST image data.  For details of the data
