@@ -1,26 +1,81 @@
 import numpy as np
+# class SGD:
+#     def __init__(self, learning_rate=.01, decay=0):
+#         self.learning_rate = learning_rate
+#         self.current_learning_rate = learning_rate
+#         self.decay = decay
+#         self.iterations = 0
+#
+#     # Call once before any parameter updates
+#     def pre_update_params(self):
+#         if self.decay:
+#             self.current_learning_rate = self.current_learning_rate * (1. / (1. + self.decay * self.iterations))
+#
+#     # Update parameters
+#     def update_params(self, layer):
+#         weight_updates = -self.current_learning_rate * layer.dweights
+#         bias_updates = -self.current_learning_rate * layer.dbiases
+#         layer.weights += weight_updates
+#         layer.biases += bias_updates
+#
+#     # Call once after any parameter updates
+#     def post_update_params(self):
+#         self.iterations += 1
+
+
+
+
+
+
+
 class SGD:
-    def __init__(self, learning_rate=.01, decay=0):
+    # Initialize optimizer - set settings
+    def __init__(self, learning_rate=.01, decay=4e-12, momentum=0.1, nesterov=True):
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
         self.iterations = 0
-
+        self.momentum = momentum
+        self.nesterov = nesterov
     # Call once before any parameter updates
     def pre_update_params(self):
         if self.decay:
             self.current_learning_rate = self.current_learning_rate * (1. / (1. + self.decay * self.iterations))
-
-    # Update parameters
+        # Update parameters
     def update_params(self, layer):
-        weight_updates = -self.current_learning_rate * layer.dweights
-        bias_updates = -self.current_learning_rate * layer.dbiases
+        # If layer does not contain momentum arrays, create them filled with zeros
+        if not hasattr(layer, 'weight_momentums'):
+            layer.weight_momentums = np.zeros_like(layer.weights)
+            layer.bias_momentums = np.zeros_like(layer.biases)
+
+    # If we use momentum
+        if self.momentum:
+            # Build weight updates with momentum - take previous updates multiplied by retain factor and update with current gradients
+            weight_updates = self.momentum * layer.weight_momentums - self.current_learning_rate * layer.dweights
+            layer.weight_momentums = weight_updates
+
+            # Build bias updates
+            bias_updates = self.momentum * layer.bias_momentums - self.current_learning_rate * layer.dbiases
+            layer.bias_momentums = bias_updates
+
+            # Apply Nesterov as well?
+            if self.nesterov:
+                weight_updates = self.momentum * weight_updates - self.current_learning_rate * layer.dweights
+                bias_updates = self.momentum * bias_updates - self.current_learning_rate * layer.dbiases
+
+        # Vanilla SGD updates (as before momentum update)
+        else:
+            weight_updates = -self.current_learning_rate * layer.dweights
+            bias_updates = -self.current_learning_rate * layer.dbiases
+
+        # Update weights with updates which are either vanilla, momentum or momentum+nesterov updates
         layer.weights += weight_updates
         layer.biases += bias_updates
 
     # Call once after any parameter updates
     def post_update_params(self):
         self.iterations += 1
+
 
 class RMSprop:
     # Non-functional, but I thought I might as well leave it in. Despite ReLU, underflow errors still occur. Possible fix in the future

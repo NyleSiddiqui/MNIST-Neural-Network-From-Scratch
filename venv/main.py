@@ -15,8 +15,8 @@ def main():
     activation1 = ReLU()
     activation2 = Softmax()
     loss_function = Loss_CategoricalCrossentropy()
-    optimizer = Adam()
-    run_network(layer1, layer2, activation1, activation2, dropout1, loss_function, optimizer, 200, training_data, len(training_data)) # train network
+    optimizer = SGD()
+    run_network(layer1, layer2, activation1, activation2, dropout1, loss_function, optimizer, 200, training_data, 1000) # train network
     run_network(layer1, layer2, activation1, activation2, loss_function, optimizer, 200, test_data, len(test_data)) # test network
 
 def run_network(layer1, layer2, activation1, activation2, dropout, loss, optimizer, epoch, training_data, stop, save=False): # Set save to true if you would like to save the network to disk after training/testing
