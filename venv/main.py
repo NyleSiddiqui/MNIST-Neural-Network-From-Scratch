@@ -66,7 +66,7 @@ def mini_batch(data, mini_batch_size):
         for k in range(0, len(data), mini_batch_size)]
     return mini_batches
 
-def saveNN(weights, biases, wFilename, bFilename): # Saves network to disk (Only works for two layers)
+def saveNN(weights, biases, wFilename, bFilename): # Saves network to disk (Only works for current network setup, can be modified to work for bigger networks)
     np.save('{0}'.format(wFilename), weights)
     np.save('{0}'.format(bFilename), biases)
 
